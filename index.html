@@ -14,7 +14,6 @@
 ::-webkit-scrollbar-thumb{background:#333366;border-radius:3px}
 body{background:#0a0a1a;color:#c8c8e0;font-family:'JetBrains Mono',monospace;min-height:100vh}
 
-/* LOADING */
 #loadScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(145deg,#0a0a1a 0%,#1a1a3e 50%,#0a0a1a 100%);padding:24px;text-align:center}
 .logo-main{font-family:'Oswald',sans-serif;font-size:44px;font-weight:700;letter-spacing:5px;text-transform:uppercase;line-height:1.1;background:linear-gradient(135deg,#ff6b35 0%,#ffd700 50%,#ff6b35 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s ease-in-out infinite}
 @keyframes shimmer{0%,100%{background-position:0% center}50%{background-position:200% center}}
@@ -25,11 +24,16 @@ body{background:#0a0a1a;color:#c8c8e0;font-family:'JetBrains Mono',monospace;min
 #progressFill{width:0%;height:100%;border-radius:2px;background:linear-gradient(90deg,#ff6b35,#ffd700);transition:width 0.4s ease}
 #progressText{font-size:11px;color:#555;margin-top:8px}
 
-/* APP */
 #app{display:none;padding:20px 16px;max-width:960px;margin:0 auto}
-.header{text-align:center;margin-bottom:24px}
+.header{text-align:center;margin-bottom:20px}
 .logo-sm{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;letter-spacing:3px;text-transform:uppercase;background:linear-gradient(90deg,#ff6b35,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .db-info{font-size:10px;color:#444;letter-spacing:2px;margin-top:2px}
+
+/* TABS */
+.main-tabs{display:flex;justify-content:center;gap:4px;margin-bottom:24px}
+.main-tab{padding:10px 24px;border-radius:6px;border:2px solid #222244;cursor:pointer;font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:all 0.15s;background:transparent;color:#555}
+.main-tab:hover{border-color:#444;color:#888}
+.main-tab.active{background:#ff6b35;border-color:#ff6b35;color:#fff}
 
 /* SEARCH */
 .search-area{max-width:500px;margin:0 auto 28px;position:relative}
@@ -56,23 +60,27 @@ body{background:#0a0a1a;color:#c8c8e0;font-family:'JetBrains Mono',monospace;min
 .stat-val.steps{color:#8b5cf6}
 .stat-label{font-size:9px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
 
-/* CHART */
 .chart-wrap{margin-bottom:24px;padding:16px;background:#111128;border-radius:8px;border:1px solid #1a1a3e;position:relative;overflow:hidden}
 .chart-title{font-family:'Oswald',sans-serif;font-size:12px;color:#666;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
 canvas#chart{width:100%;height:180px;display:block}
 
-/* TABLE */
+/* SHARED TABLE STYLES */
 .tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid #1a1a3e}
 .ms-tbl{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:11px;background:#12122a}
 .ms-tbl th{padding:10px 12px;text-align:left;color:#666688;font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;border-bottom:2px solid #1a1a3e;background:#0e0e24;position:sticky;top:0;z-index:2}
 .ms-tbl th.r{text-align:right}
 .ms-tbl th.c{text-align:center}
+.ms-tbl th.sortable{cursor:pointer;user-select:none;transition:color 0.15s}
+.ms-tbl th.sortable:hover{color:#ff6b35}
+.ms-tbl th.sorted-desc::after{content:" ▼";color:#ff6b35}
+.ms-tbl th.sorted-asc::after{content:" ▲";color:#ff6b35}
 .ms-tbl td{padding:8px 12px;color:#b0b0cc;border-bottom:1px solid #1a1a3e22}
 .ms-tbl td.r{text-align:right}
 .ms-tbl td.c{text-align:center}
 .ms-tbl td.pts{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:#ffd700;text-align:center;width:70px}
 .ms-tbl td.pts.is-peak{color:#ff6b35;position:relative}
 .ms-tbl td.pts.is-peak::after{content:"🏆";font-size:10px;position:absolute;top:2px;right:2px}
+.ms-tbl td.jump-big{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;color:#8b5cf6;text-align:center}
 .ms-tbl td.jump{font-size:10px;color:#8b5cf6;text-align:center}
 .ms-tbl td.date{color:#8888aa;white-space:nowrap}
 .ms-tbl td.matchup{white-space:nowrap}
@@ -80,11 +88,30 @@ canvas#chart{width:100%;height:180px;display:block}
 .ms-tbl td.matchup .vs{color:#444;margin:0 3px}
 .ms-tbl td.matchup .opp{color:#999}
 .ms-tbl td.gnum{color:#555;font-size:10px}
+.ms-tbl td.rank{font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#ff6b35;text-align:center;width:44px}
+.ms-tbl td.rank.top3{color:#ffd700}
+.ms-tbl td.pname{font-weight:600;color:#e0e0ff;white-space:nowrap;cursor:pointer;transition:color 0.1s}
+.ms-tbl td.pname:hover{color:#ff6b35;text-decoration:underline}
+.ms-tbl td.from-to{font-size:10px;color:#888}
+.ms-tbl td.from-to .old{color:#555}
+.ms-tbl td.from-to .arr{color:#333;margin:0 4px}
+.ms-tbl td.from-to .new{color:#ffd700;font-weight:600}
 .ms-tbl tr.row-even{background:#12122a}
 .ms-tbl tr.row-odd{background:#151538}
 .ms-tbl tr{transition:background 0.1s}
 .ms-tbl tbody tr:hover{background:#1a1a4e}
 .ms-tbl .final-row td{border-top:2px solid #ffd70044}
+
+/* RANKING SECTION */
+#rankingView{display:none}
+.ranking-header{text-align:center;margin-bottom:20px}
+.ranking-title{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;margin-bottom:4px}
+.ranking-sub{font-size:10px;color:#555;letter-spacing:1px}
+.ranking-controls{display:flex;justify-content:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.rank-filter{padding:6px 14px;border-radius:14px;border:1px solid #222244;background:transparent;color:#666;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all 0.15s}
+.rank-filter:hover{border-color:#8b5cf6;color:#8b5cf6}
+.rank-filter.active{background:#8b5cf6;border-color:#8b5cf6;color:#fff}
+.showing-label{font-size:10px;color:#444;text-align:center;margin-bottom:12px;letter-spacing:1px}
 
 /* COMPARE */
 .compare-section{margin-top:32px;padding-top:24px;border-top:1px solid #1a1a3e}
@@ -94,7 +121,6 @@ canvas#chart{width:100%;height:180px;display:block}
 .compare-tag:hover{border-color:#ff6b35;color:#ff6b35}
 .compare-tag.active{background:#ff6b35;color:#fff;border-color:#ff6b35}
 
-/* EMPTY */
 .empty-state{text-align:center;padding:100px 20px;color:#222244;font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2px}
 .empty-state .icon{font-size:48px;margin-bottom:16px;opacity:0.4}
 .empty-state .hint{font-size:11px;color:#333;letter-spacing:1px;margin-top:8px;font-family:'JetBrains Mono',monospace}
@@ -106,6 +132,9 @@ canvas#chart{width:100%;height:180px;display:block}
   .stat-val{font-size:24px}
   .ms-tbl{font-size:10px}
   .ms-tbl td.pts{font-size:16px}
+  .ms-tbl td.jump-big{font-size:14px}
+  .ms-tbl td.rank{font-size:12px}
+  .main-tab{padding:8px 14px;font-size:11px}
 }
 </style>
 </head>
@@ -124,56 +153,90 @@ canvas#chart{width:100%;height:180px;display:block}
     <div class="logo-sm">CAREER HIGH TRACKER</div>
     <div class="db-info" id="dbInfo"></div>
   </div>
-  <div class="search-area">
-    <input class="search-input" id="searchInput" type="text" placeholder="Search any player..." autocomplete="off">
-    <div class="dropdown" id="dropdown"></div>
+  <div class="main-tabs">
+    <button class="main-tab active" id="tabPlayer" onclick="switchTab('player')">🔍 Player Search</button>
+    <button class="main-tab" id="tabRanking" onclick="switchTab('ranking')">🏆 Biggest Jumps</button>
   </div>
-  <div id="playerCard">
-    <div class="player-header">
-      <div class="player-name" id="pName"></div>
-      <div class="player-stats">
-        <div class="stat-box"><div class="stat-val peak" id="pPeak"></div><div class="stat-label">Career High</div></div>
-        <div class="stat-box"><div class="stat-val games" id="pGames"></div><div class="stat-label">RS Games</div></div>
-        <div class="stat-box"><div class="stat-val steps" id="pSteps"></div><div class="stat-label">New Highs</div></div>
+
+  <!-- PLAYER VIEW -->
+  <div id="playerView">
+    <div class="search-area">
+      <input class="search-input" id="searchInput" type="text" placeholder="Search any player..." autocomplete="off">
+      <div class="dropdown" id="dropdown"></div>
+    </div>
+    <div id="playerCard">
+      <div class="player-header">
+        <div class="player-name" id="pName"></div>
+        <div class="player-stats">
+          <div class="stat-box"><div class="stat-val peak" id="pPeak"></div><div class="stat-label">Career High</div></div>
+          <div class="stat-box"><div class="stat-val games" id="pGames"></div><div class="stat-label">RS Games</div></div>
+          <div class="stat-box"><div class="stat-val steps" id="pSteps"></div><div class="stat-label">New Highs</div></div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Career High Progression</div>
+        <canvas id="chart" height="180"></canvas>
+      </div>
+      <div class="tbl-wrap">
+        <table class="ms-tbl">
+          <thead><tr><th class="c">#</th><th class="c">PTS</th><th class="c">+</th><th>Date</th><th>Matchup</th><th class="c">Season</th><th class="r">Game #</th></tr></thead>
+          <tbody id="msBody"></tbody>
+        </table>
+      </div>
+      <div class="compare-section">
+        <div class="compare-title">Quick Compare</div>
+        <div class="compare-tags" id="compareTags"></div>
       </div>
     </div>
-    <div class="chart-wrap">
-      <div class="chart-title">Career High Progression</div>
-      <canvas id="chart" height="180"></canvas>
+    <div class="empty-state" id="emptyMsg">
+      <div class="icon">🔥</div>
+      Search for any player to see their career scoring high evolution
+      <div class="hint">5,087 players · 1947-2026 · Regular Season only</div>
     </div>
+  </div>
+
+  <!-- RANKING VIEW -->
+  <div id="rankingView">
+    <div class="ranking-header">
+      <div class="ranking-title">ALL-TIME BIGGEST CAREER HIGH JUMPS</div>
+      <div class="ranking-sub">Excluding first career high · Regular Season only</div>
+    </div>
+    <div class="ranking-controls">
+      <button class="rank-filter active" data-min="0" onclick="setMinFilter(0,this)">All Jumps</button>
+      <button class="rank-filter" data-min="10" onclick="setMinFilter(10,this)">+10 or more</button>
+      <button class="rank-filter" data-min="15" onclick="setMinFilter(15,this)">+15 or more</button>
+      <button class="rank-filter" data-min="20" onclick="setMinFilter(20,this)">+20 or more</button>
+    </div>
+    <div class="showing-label" id="showingLabel"></div>
     <div class="tbl-wrap">
-      <table class="ms-tbl">
-        <thead>
-          <tr>
-            <th class="c">#</th>
-            <th class="c">PTS</th>
-            <th class="c">+</th>
-            <th>Date</th>
-            <th>Matchup</th>
-            <th class="c">Season</th>
-            <th class="r">Game #</th>
-          </tr>
-        </thead>
-        <tbody id="msBody"></tbody>
+      <table class="ms-tbl" id="rankTable">
+        <thead><tr>
+          <th class="c sortable sorted-desc" data-col="rank">#</th>
+          <th class="c sortable" data-col="jump">JUMP</th>
+          <th>PLAYER</th>
+          <th class="c">FROM → TO</th>
+          <th>DATE</th>
+          <th>MATCHUP</th>
+          <th class="c sortable" data-col="season">SEASON</th>
+          <th class="r sortable" data-col="gnum">GAME #</th>
+        </tr></thead>
+        <tbody id="rankBody"></tbody>
       </table>
     </div>
-    <div class="compare-section">
-      <div class="compare-title">Quick Compare</div>
-      <div class="compare-tags" id="compareTags"></div>
-    </div>
-  </div>
-  <div class="empty-state" id="emptyMsg">
-    <div class="icon">🔥</div>
-    Search for any player to see their career scoring high evolution
-    <div class="hint">5,087 players · 1947-2026 · Regular Season only</div>
   </div>
 </div>
+
 <script>
 let DATA={};
 let playerNames=[];
+let allJumps=[];
+let currentMinFilter=0;
+let currentSort={col:'rank',asc:false};
 const LEGENDS=["Michael Jordan","LeBron James","Kobe Bryant","Wilt Chamberlain","Stephen Curry","Kevin Durant","Kareem Abdul-Jabbar","Larry Bird","Luka Doncic","Shai Gilgeous-Alexander","Victor Wembanyama","Allen Iverson","James Harden","Devin Booker"];
+const PAGE_SIZE=100;
+let rankPage=0;
 
-// Load
+// === LOAD ===
 (async function(){
   const fill=document.getElementById("progressFill"),text=document.getElementById("progressText"),label=document.getElementById("progressLabel");
   try{
@@ -190,6 +253,10 @@ const LEGENDS=["Michael Jordan","LeBron James","Kobe Bryant","Wilt Chamberlain",
     DATA=JSON.parse(decompressed);
     playerNames=Object.keys(DATA).sort();
     fill.style.width="100%";text.textContent="Done!";
+
+    // Pre-compute all jumps for ranking
+    buildJumpsIndex();
+
     setTimeout(()=>{
       document.getElementById("loadScreen").style.display="none";
       document.getElementById("app").style.display="block";
@@ -200,7 +267,37 @@ const LEGENDS=["Michael Jordan","LeBron James","Kobe Bryant","Wilt Chamberlain",
   }catch(err){label.textContent="Error";text.textContent=err.message;fill.style.background="#e63946";fill.style.width="100%";console.error(err)}
 })();
 
-// Search
+function buildJumpsIndex(){
+  allJumps=[];
+  for(const name in DATA){
+    const [total,ms]=DATA[name];
+    for(let i=1;i<ms.length;i++){
+      const prev=ms[i-1][1];
+      const curr=ms[i][1];
+      const jump=curr-prev;
+      allJumps.push({
+        name,jump,from:prev,to:curr,
+        gnum:ms[i][0],date:ms[i][2],team:ms[i][3],opp:ms[i][4],season:ms[i][5],
+        total
+      });
+    }
+  }
+  allJumps.sort((a,b)=>b.jump-a.jump);
+  // Assign ranks
+  allJumps.forEach((j,i)=>{j.rank=i+1});
+}
+
+// === TABS ===
+function switchTab(tab){
+  document.getElementById("tabPlayer").classList.toggle("active",tab==="player");
+  document.getElementById("tabRanking").classList.toggle("active",tab==="ranking");
+  document.getElementById("playerView").style.display=tab==="player"?"block":"none";
+  document.getElementById("rankingView").style.display=tab==="ranking"?"block":"none";
+  if(tab==="ranking"){rankPage=0;renderRanking()}
+  if(tab==="player")document.getElementById("searchInput").focus();
+}
+
+// === SEARCH ===
 const searchInput=document.getElementById("searchInput"),dropdown=document.getElementById("dropdown");
 searchInput.addEventListener("input",function(){
   const q=this.value.toLowerCase().trim();
@@ -208,8 +305,7 @@ searchInput.addEventListener("input",function(){
   const m=playerNames.filter(n=>n.toLowerCase().includes(q)).slice(0,20);
   if(!m.length){dropdown.classList.remove("active");return}
   dropdown.innerHTML=m.map(name=>{
-    const [total,ms]=DATA[name];
-    const peak=ms.length?ms[ms.length-1][1]:0;
+    const[total,ms]=DATA[name];const peak=ms.length?ms[ms.length-1][1]:0;
     return'<div class="dropdown-item" onclick="selectPlayer(\''+name.replace(/'/g,"\\'")+'\')">'+'<span>'+name+'</span><span class="meta"><span class="peak">'+peak+' pts</span> · '+total+' gm · '+ms.length+' highs</span></div>';
   }).join("");
   dropdown.classList.add("active");
@@ -220,22 +316,19 @@ document.addEventListener("mousedown",function(e){if(!dropdown.contains(e.target
 
 function selectPlayer(name){
   if(!DATA[name])return;
+  switchTab("player");
   dropdown.classList.remove("active");
   searchInput.value=name;
-  const [total,ms]=DATA[name];
-  const peak=ms.length?ms[ms.length-1][1]:0;
-
+  const[total,ms]=DATA[name];const peak=ms.length?ms[ms.length-1][1]:0;
   document.getElementById("emptyMsg").style.display="none";
   document.getElementById("playerCard").style.display="block";
   document.getElementById("pName").textContent=name;
   document.getElementById("pPeak").textContent=peak;
   document.getElementById("pGames").textContent=total.toLocaleString();
   document.getElementById("pSteps").textContent=ms.length;
-
-  // Table
   let html="";
   ms.forEach((m,i)=>{
-    const [gnum,pts,date,team,opp,season]=m;
+    const[gnum,pts,date,team,opp,season]=m;
     const jump=i===0?pts:pts-ms[i-1][1];
     const isPeak=i===ms.length-1;
     const seasonStr=season?((season-1)+"-"+String(season).slice(2)):"";
@@ -246,101 +339,125 @@ function selectPlayer(name){
       +'<td class="date">'+date+'</td>'
       +'<td class="matchup"><span class="team">'+team+'</span><span class="vs">vs</span><span class="opp">'+opp+'</span></td>'
       +'<td class="c">'+seasonStr+'</td>'
-      +'<td class="r gnum">#'+gnum+' / '+total+'</td>'
-      +'</tr>';
+      +'<td class="r gnum">#'+gnum+' / '+total+'</td></tr>';
   });
   document.getElementById("msBody").innerHTML=html;
-
-  // Chart
   drawChart(ms,total,peak);
-
-  // Compare tags
   const tags=LEGENDS.filter(n=>n!==name&&DATA[n]);
   document.getElementById("compareTags").innerHTML=tags.map(n=>'<span class="compare-tag" onclick="selectPlayer(\''+n.replace(/'/g,"\\'")+'\')">'+ n+'</span>').join("");
 }
 
+// === CHART ===
 function drawChart(ms,total,peak){
-  const canvas=document.getElementById("chart");
-  const ctx=canvas.getContext("2d");
-  const dpr=window.devicePixelRatio||1;
-  const rect=canvas.getBoundingClientRect();
-  canvas.width=rect.width*dpr;
-  canvas.height=180*dpr;
-  ctx.scale(dpr,dpr);
-  const W=rect.width,H=180;
-  const pad={t:10,r:16,b:28,l:40};
-  const cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
-
+  const canvas=document.getElementById("chart");const ctx=canvas.getContext("2d");
+  const dpr=window.devicePixelRatio||1;const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*dpr;canvas.height=180*dpr;ctx.scale(dpr,dpr);
+  const W=rect.width,H=180;const pad={t:10,r:16,b:28,l:40};const cW=W-pad.l-pad.r,cH=H-pad.t-pad.b;
   ctx.clearRect(0,0,W,H);
-
   if(!ms.length)return;
-
-  const maxG=total;
-  const maxP=peak*1.08;
-
-  // Build step data points: starts at (0,0) then steps up
+  const maxG=total;const maxP=peak*1.08;
   const points=[[0,0]];
-  ms.forEach(m=>{
-    const prev=points[points.length-1];
-    points.push([m[0],prev[1]]); // horizontal to the game where new high happens
-    points.push([m[0],m[1]]);    // step up
-  });
-  points.push([total,ms[ms.length-1][1]]); // extend to end
-
-  function toX(g){return pad.l+g/maxG*cW}
-  function toY(p){return pad.t+cH-p/maxP*cH}
-
-  // Grid
+  ms.forEach(m=>{const prev=points[points.length-1];points.push([m[0],prev[1]]);points.push([m[0],m[1]])});
+  points.push([total,ms[ms.length-1][1]]);
+  function toX(g){return pad.l+g/maxG*cW}function toY(p){return pad.t+cH-p/maxP*cH}
   ctx.strokeStyle="#1a1a3e";ctx.lineWidth=0.5;
-  for(let i=0;i<=4;i++){
-    const y=pad.t+cH*i/4;
-    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
-    const val=Math.round(maxP*(1-i/4));
-    ctx.fillStyle="#444466";ctx.font="9px 'JetBrains Mono'";ctx.textAlign="right";ctx.textBaseline="middle";
-    ctx.fillText(val,pad.l-6,y);
-  }
-
-  // X axis labels
+  for(let i=0;i<=4;i++){const y=pad.t+cH*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();const val=Math.round(maxP*(1-i/4));ctx.fillStyle="#444466";ctx.font="9px 'JetBrains Mono'";ctx.textAlign="right";ctx.textBaseline="middle";ctx.fillText(val,pad.l-6,y)}
   ctx.fillStyle="#444466";ctx.font="9px 'JetBrains Mono'";ctx.textAlign="center";ctx.textBaseline="top";
-  const xSteps=[0,0.25,0.5,0.75,1];
-  xSteps.forEach(pct=>{
-    const g=Math.round(pct*maxG);
-    ctx.fillText(g,toX(g),H-pad.b+6);
-  });
+  [0,0.25,0.5,0.75,1].forEach(pct=>{const g=Math.round(pct*maxG);ctx.fillText(g,toX(g),H-pad.b+6)});
   ctx.fillText("GAME #",W/2,H-6);
-
-  // Fill area under step line
-  ctx.beginPath();
-  ctx.moveTo(toX(points[0][0]),toY(points[0][1]));
-  for(let i=1;i<points.length;i++){
-    ctx.lineTo(toX(points[i][0]),toY(points[i][1]));
-  }
+  ctx.beginPath();ctx.moveTo(toX(points[0][0]),toY(points[0][1]));
+  for(let i=1;i<points.length;i++)ctx.lineTo(toX(points[i][0]),toY(points[i][1]));
   ctx.lineTo(toX(total),toY(0));ctx.lineTo(toX(0),toY(0));ctx.closePath();
   const grad=ctx.createLinearGradient(0,pad.t,0,H-pad.b);
-  grad.addColorStop(0,"rgba(255,107,53,0.25)");
-  grad.addColorStop(1,"rgba(255,107,53,0.02)");
+  grad.addColorStop(0,"rgba(255,107,53,0.25)");grad.addColorStop(1,"rgba(255,107,53,0.02)");
   ctx.fillStyle=grad;ctx.fill();
-
-  // Step line
-  ctx.beginPath();
-  ctx.moveTo(toX(points[0][0]),toY(points[0][1]));
-  for(let i=1;i<points.length;i++){
-    ctx.lineTo(toX(points[i][0]),toY(points[i][1]));
-  }
+  ctx.beginPath();ctx.moveTo(toX(points[0][0]),toY(points[0][1]));
+  for(let i=1;i<points.length;i++)ctx.lineTo(toX(points[i][0]),toY(points[i][1]));
   ctx.strokeStyle="#ff6b35";ctx.lineWidth=2;ctx.stroke();
+  ms.forEach((m,i)=>{const x=toX(m[0]),y=toY(m[1]);ctx.beginPath();ctx.arc(x,y,i===ms.length-1?5:3,0,Math.PI*2);ctx.fillStyle=i===ms.length-1?"#ffd700":"#ff6b35";ctx.fill();ctx.strokeStyle="#0a0a1a";ctx.lineWidth=1.5;ctx.stroke()});
+}
+window.addEventListener("resize",()=>{const name=document.getElementById("pName").textContent;if(name&&DATA[name]){const[total,ms]=DATA[name];drawChart(ms,total,ms.length?ms[ms.length-1][1]:0)}});
 
-  // Milestone dots
-  ms.forEach((m,i)=>{
-    const x=toX(m[0]),y=toY(m[1]);
-    ctx.beginPath();ctx.arc(x,y,i===ms.length-1?5:3,0,Math.PI*2);
-    ctx.fillStyle=i===ms.length-1?"#ffd700":"#ff6b35";ctx.fill();
-    ctx.strokeStyle="#0a0a1a";ctx.lineWidth=1.5;ctx.stroke();
+// === RANKING ===
+function setMinFilter(min,btn){
+  currentMinFilter=min;rankPage=0;
+  document.querySelectorAll(".rank-filter").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  renderRanking();
+}
+
+function getFilteredJumps(){
+  let list=currentMinFilter>0?allJumps.filter(j=>j.jump>=currentMinFilter):allJumps;
+  // Apply current sort
+  const{col,asc}=currentSort;
+  list=[...list];
+  list.sort((a,b)=>{
+    let va,vb;
+    switch(col){
+      case"rank":va=a.jump;vb=b.jump;return asc?va-vb:vb-va;
+      case"jump":va=a.jump;vb=b.jump;return asc?va-vb:vb-va;
+      case"season":va=a.season;vb=b.season;return asc?va-vb:vb-va;
+      case"gnum":va=a.gnum;vb=b.gnum;return asc?va-vb:vb-va;
+      default:return 0;
+    }
+  });
+  return list;
+}
+
+function renderRanking(){
+  const filtered=getFilteredJumps();
+  const start=rankPage*PAGE_SIZE;
+  const page=filtered.slice(start,start+PAGE_SIZE);
+  const totalFiltered=filtered.length;
+
+  document.getElementById("showingLabel").textContent="Showing "+(start+1)+"-"+Math.min(start+PAGE_SIZE,totalFiltered)+" of "+totalFiltered.toLocaleString()+" jumps";
+
+  let html="";
+  page.forEach((j,i)=>{
+    const idx=start+i;
+    const seasonStr=j.season?((j.season-1)+"-"+String(j.season).slice(2)):"";
+    html+='<tr class="row-'+(idx%2===0?"even":"odd")+'">'
+      +'<td class="rank'+(idx<3?" top3":"")+'">'+((currentSort.col==="rank"||currentSort.col==="jump")?idx+1:"")+'</td>'
+      +'<td class="jump-big">+'+j.jump+'</td>'
+      +'<td class="pname" onclick="selectPlayer(\''+j.name.replace(/'/g,"\\'")+'\')">'+ j.name+'</td>'
+      +'<td class="from-to"><span class="old">'+j.from+'</span><span class="arr">→</span><span class="new">'+j.to+'</span></td>'
+      +'<td class="date">'+j.date+'</td>'
+      +'<td class="matchup"><span class="team">'+j.team+'</span><span class="vs">vs</span><span class="opp">'+j.opp+'</span></td>'
+      +'<td class="c">'+seasonStr+'</td>'
+      +'<td class="r gnum">#'+j.gnum+' / '+j.total+'</td>'
+      +'</tr>';
+  });
+
+  // Pagination row
+  if(totalFiltered>PAGE_SIZE){
+    const totalPages=Math.ceil(totalFiltered/PAGE_SIZE);
+    const curPage=rankPage+1;
+    html+='<tr><td colspan="8" style="text-align:center;padding:16px">';
+    if(rankPage>0)html+='<span style="cursor:pointer;color:#ff6b35;margin:0 12px" onclick="rankPage--;renderRanking()">← Previous</span>';
+    html+='<span style="color:#555">Page '+curPage+' / '+totalPages+'</span>';
+    if(start+PAGE_SIZE<totalFiltered)html+='<span style="cursor:pointer;color:#ff6b35;margin:0 12px" onclick="rankPage++;renderRanking()">Next →</span>';
+    html+='</td></tr>';
+  }
+
+  document.getElementById("rankBody").innerHTML=html;
+
+  // Update header sort indicators
+  document.querySelectorAll("#rankTable th.sortable").forEach(th=>{
+    th.classList.remove("sorted-asc","sorted-desc");
+    if(th.dataset.col===currentSort.col){
+      th.classList.add(currentSort.asc?"sorted-asc":"sorted-desc");
+    }
   });
 }
 
-window.addEventListener("resize",()=>{
-  const name=document.getElementById("pName").textContent;
-  if(name&&DATA[name]){const[total,ms]=DATA[name];drawChart(ms,total,ms.length?ms[ms.length-1][1]:0)}
+// Column sort clicks
+document.querySelectorAll("#rankTable th.sortable").forEach(th=>{
+  th.addEventListener("click",function(){
+    const col=this.dataset.col;
+    if(currentSort.col===col)currentSort.asc=!currentSort.asc;
+    else{currentSort={col,asc:false}}
+    rankPage=0;renderRanking();
+  });
 });
 </script>
 </body>
