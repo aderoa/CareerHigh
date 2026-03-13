@@ -121,6 +121,18 @@ canvas#chart{width:100%;height:180px;display:block}
 .compare-tag:hover{border-color:#e04400;color:#e04400}
 .compare-tag.active{background:#e04400;color:#fff;border-color:#e04400}
 
+/* DATE PICKER */
+.date-picker-area{max-width:500px;margin:0 auto 24px;text-align:center}
+.date-input{padding:10px 16px;border-radius:6px;background:#f5f5f8;color:#222;font-size:15px;font-family:'JetBrains Mono',monospace;outline:none;border:2px solid #ddd;transition:border-color 0.2s;cursor:pointer}
+.date-input:focus{border-color:#e04400}
+.date-nav{display:flex;justify-content:center;gap:6px;margin-top:10px;flex-wrap:wrap}
+.date-nav-btn{padding:6px 14px;border-radius:14px;border:1px solid #ddd;background:#fff;color:#666;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all 0.15s}
+.date-nav-btn:hover{border-color:#e04400;color:#e04400}
+.date-summary{text-align:center;margin-bottom:16px;padding:14px 20px;background:linear-gradient(135deg,#1a1a2e 0%,#2d2d5e 100%);border-radius:8px}
+.date-summary .date-label{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:2px;text-transform:uppercase}
+.date-summary .date-count{font-size:11px;color:#ccc;margin-top:4px;letter-spacing:1px}
+.date-none{text-align:center;padding:40px 20px;color:#aaa;font-size:12px;letter-spacing:1px}
+
 .empty-state{text-align:center;padding:100px 20px;color:#ccc;font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:2px}
 .empty-state .icon{font-size:48px;margin-bottom:16px;opacity:0.5}
 .empty-state .hint{font-size:11px;color:#aaa;letter-spacing:1px;margin-top:8px;font-family:'JetBrains Mono',monospace}
@@ -156,6 +168,7 @@ canvas#chart{width:100%;height:180px;display:block}
   <div class="main-tabs">
     <button class="main-tab active" id="tabPlayer" onclick="switchTab('player')">🔍 Player Search</button>
     <button class="main-tab" id="tabRanking" onclick="switchTab('ranking')">🏆 Biggest Jumps</button>
+    <button class="main-tab" id="tabDate" onclick="switchTab('date')">📅 By Date</button>
   </div>
 
   <!-- PLAYER VIEW -->
@@ -224,12 +237,35 @@ canvas#chart{width:100%;height:180px;display:block}
       </table>
     </div>
   </div>
+
+  <!-- DATE VIEW -->
+  <div id="dateView" style="display:none">
+    <div class="ranking-header">
+      <div class="ranking-title">CAREER HIGHS BY DATE</div>
+      <div class="ranking-sub">Every new career scoring high set on a given date</div>
+    </div>
+    <div class="date-picker-area">
+      <input type="date" class="date-input" id="dateInput">
+      <div class="date-nav">
+        <button class="date-nav-btn" onclick="shiftDate(-1)">← Day Before</button>
+        <button class="date-nav-btn" onclick="setToday()">Today</button>
+        <button class="date-nav-btn" onclick="setYesterday()">Yesterday</button>
+        <button class="date-nav-btn" onclick="shiftDate(1)">Day After →</button>
+      </div>
+    </div>
+    <div id="dateResults"></div>
+    <div class="empty-state" id="dateEmpty">
+      <div class="icon">📅</div>
+      Pick a date to see all career highs set that day
+    </div>
+  </div>
 </div>
 
 <script>
 let DATA={};
 let playerNames=[];
 let allJumps=[];
+let dateIndex={};  // date -> [{name, from, to, jump, team, opp, gnum, total, season, msIdx}]
 let currentMinFilter=0;
 let currentSort={col:'rank',asc:false};
 const LEGENDS=["Michael Jordan","LeBron James","Kobe Bryant","Wilt Chamberlain","Stephen Curry","Kevin Durant","Kareem Abdul-Jabbar","Larry Bird","Luka Doncic","Shai Gilgeous-Alexander","Victor Wembanyama","Allen Iverson","James Harden","Devin Booker"];
@@ -256,6 +292,7 @@ let rankPage=0;
 
     // Pre-compute all jumps for ranking
     buildJumpsIndex();
+    buildDateIndex();
 
     setTimeout(()=>{
       document.getElementById("loadScreen").style.display="none";
@@ -287,14 +324,128 @@ function buildJumpsIndex(){
   allJumps.forEach((j,i)=>{j.rank=i+1});
 }
 
+function buildDateIndex(){
+  dateIndex={};
+  for(const name in DATA){
+    const[total,ms]=DATA[name];
+    for(let i=0;i<ms.length;i++){
+      const[gnum,pts,date,team,opp,season]=ms[i];
+      if(!date)continue;
+      const prev=i>0?ms[i-1][1]:0;
+      const jump=pts-prev;
+      if(!dateIndex[date])dateIndex[date]=[];
+      dateIndex[date].push({name,from:prev,to:pts,jump,team,opp,gnum,total,season,msIdx:i});
+    }
+  }
+  // Sort each date by points desc
+  for(const d in dateIndex){
+    dateIndex[d].sort((a,b)=>b.to-a.to);
+  }
+}
+
+// === DATE VIEW ===
+const dateInput=document.getElementById("dateInput");
+dateInput.addEventListener("change",renderDateView);
+
+function setToday(){
+  const d=new Date();
+  dateInput.value=d.toISOString().slice(0,10);
+  renderDateView();
+}
+function setYesterday(){
+  const d=new Date();d.setDate(d.getDate()-1);
+  dateInput.value=d.toISOString().slice(0,10);
+  renderDateView();
+}
+function shiftDate(delta){
+  if(!dateInput.value)return;
+  const d=new Date(dateInput.value+"T12:00:00");
+  d.setDate(d.getDate()+delta);
+  dateInput.value=d.toISOString().slice(0,10);
+  renderDateView();
+}
+
+function renderDateView(){
+  const val=dateInput.value;
+  if(!val)return;
+  const entries=dateIndex[val]||[];
+  const container=document.getElementById("dateResults");
+  const empty=document.getElementById("dateEmpty");
+
+  if(!entries.length){
+    container.innerHTML="";
+    empty.style.display="block";
+    empty.querySelector(".icon").textContent="📅";
+    empty.querySelector(".icon").style.opacity="0.5";
+    const parts=val.split("-");
+    const fmtDate=new Date(val+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+    empty.innerHTML='<div class="icon">📅</div>No career highs were set on '+fmtDate;
+    return;
+  }
+
+  empty.style.display="none";
+  const parts=val.split("-");
+  const fmtDate=new Date(val+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+
+  // Separate first career highs vs jumps
+  const firsts=entries.filter(e=>e.msIdx===0);
+  const jumps=entries.filter(e=>e.msIdx>0);
+
+  let html='<div class="date-summary"><div class="date-label">'+fmtDate+'</div>'
+    +'<div class="date-count">'+entries.length+' career high'+(entries.length!==1?'s':'')+' set'
+    +(jumps.length?' · '+jumps.length+' record-breaking':'')
+    +(firsts.length?' · '+firsts.length+' debut':'')
+    +'</div></div>';
+
+  // Jumps table (excluding first career highs)
+  if(jumps.length){
+    html+='<div style="margin-bottom:20px"><div class="tbl-wrap"><table class="ms-tbl"><thead><tr>'
+      +'<th class="c">JUMP</th><th>PLAYER</th><th class="c">FROM → TO</th><th>MATCHUP</th>'
+      +'<th class="c">SEASON</th><th class="r">GAME #</th></tr></thead><tbody>';
+    jumps.forEach((j,i)=>{
+      const seasonStr=j.season?((j.season-1)+"-"+String(j.season).slice(2)):"";
+      html+='<tr class="row-'+(i%2===0?"even":"odd")+'">'
+        +'<td class="jump-big">+'+j.jump+'</td>'
+        +'<td class="pname" onclick="selectPlayer(\''+j.name.replace(/'/g,"\\'")+'\')">'+ j.name+'</td>'
+        +'<td class="from-to"><span class="old">'+j.from+'</span><span class="arr">→</span><span class="new">'+j.to+'</span></td>'
+        +'<td class="matchup"><span class="team">'+j.team+'</span><span class="vs">vs</span><span class="opp">'+j.opp+'</span></td>'
+        +'<td class="c">'+seasonStr+'</td>'
+        +'<td class="r gnum">#'+j.gnum+' / '+j.total+'</td></tr>';
+    });
+    html+='</tbody></table></div></div>';
+  }
+
+  // First career highs (debuts)
+  if(firsts.length){
+    html+='<div style="font-family:Oswald,sans-serif;font-size:11px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">First Career Highs (Debut Games)</div>';
+    html+='<div class="tbl-wrap"><table class="ms-tbl"><thead><tr>'
+      +'<th class="c">PTS</th><th>PLAYER</th><th>MATCHUP</th>'
+      +'<th class="c">SEASON</th></tr></thead><tbody>';
+    firsts.forEach((j,i)=>{
+      const seasonStr=j.season?((j.season-1)+"-"+String(j.season).slice(2)):"";
+      html+='<tr class="row-'+(i%2===0?"even":"odd")+'">'
+        +'<td class="pts">'+j.to+'</td>'
+        +'<td class="pname" onclick="selectPlayer(\''+j.name.replace(/'/g,"\\'")+'\')">'+ j.name+'</td>'
+        +'<td class="matchup"><span class="team">'+j.team+'</span><span class="vs">vs</span><span class="opp">'+j.opp+'</span></td>'
+        +'<td class="c">'+seasonStr+'</td></tr>';
+    });
+    html+='</tbody></table></div>';
+  }
+
+  container.innerHTML=html;
+}
+
 // === TABS ===
 function switchTab(tab){
   document.getElementById("tabPlayer").classList.toggle("active",tab==="player");
   document.getElementById("tabRanking").classList.toggle("active",tab==="ranking");
+  document.getElementById("tabDate").classList.toggle("active",tab==="date");
   document.getElementById("playerView").style.display=tab==="player"?"block":"none";
   document.getElementById("rankingView").style.display=tab==="ranking"?"block":"none";
+  document.getElementById("dateView").style.display=tab==="date"?"block":"none";
   if(tab==="ranking"){rankPage=0;renderRanking()}
   if(tab==="player")document.getElementById("searchInput").focus();
+  if(tab==="date"&&!document.getElementById("dateInput").value)setYesterday();
 }
 
 // === SEARCH ===
